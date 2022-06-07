@@ -1,0 +1,59 @@
+﻿@using EF_FluentAPI__Front_.Controllers
+@using Microsoft.AspNetCore.Mvc.RazorPages
+@model OrderDto
+
+@{
+    ViewData["Title"] = "Корзина";
+}
+
+<h1>Корзина</h1>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>
+            <a>Наименование</a>
+        </th>
+        <th>
+            <a>Цена</a>
+        </th>
+        <th></th>
+    </tr>
+    </thead>
+    @foreach (var product in Model.Products)
+    {
+        <tbody>
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => product.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => product.Price)
+            </td>
+            <td>
+                <a asp-controller="Cart" asp-action="CartOperate" asp-route-id="@product.Id" asp-route-isRemoved="false">Добавить в заказ</a>
+            </td>
+            <td>
+                <a asp-controller="Cart" asp-action="CartOperate" asp-route-id="@product.Id" asp-route-isRemoved="true" >Удалить из заказа</a>
+            </td>
+        </tr>
+        </tbody>
+    }
+    <tr>
+        <td>
+            <a>Итоговая цена: @Model.TotalPrice</a>
+        </td>
+    </tr>
+</table>
+
+<script>
+    const response = await fetch("~/cartOperate/", {
+        method: "PUT",
+        headers: { "Accept": "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({
+            id: userId,
+            name: userName,
+            age: parseInt(userAge, 10)
+        })
+    });
+</script>

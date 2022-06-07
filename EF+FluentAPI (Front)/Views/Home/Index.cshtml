@@ -1,0 +1,40 @@
+﻿@model List<Product>
+
+@{
+    ViewData["Title"] = "Главная";
+}
+
+<h1>Продукты</h1>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>
+            <a>Наименование</a>
+        </th>
+        <th>
+            <a>Цена</a>
+        </th>
+        <th></th>
+    </tr>
+    </thead>
+    @foreach (var product in Model)
+    {
+        <tbody>
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => product.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => product.Price)
+                </td>
+                <td>
+                    <a asp-controller="Cart" asp-action="CartOperate" asp-route-id="@product.Id" asp-route-isRemoved="false" >Добавить в заказ</a>
+                </td>
+                <td>
+                    <a asp-controller="Cart" asp-action="CartOperate" asp-route-id="@product.Id" asp-route-isRemoved="true" >Удалить из заказа</a>
+                </td>
+            </tr>
+        </tbody>
+    }
+</table>
