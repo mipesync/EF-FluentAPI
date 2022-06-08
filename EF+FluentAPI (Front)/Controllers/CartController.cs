@@ -20,50 +20,47 @@ public class CartController : Controller
         _url = configuration.GetValue<string>("ApiConnectionString:ApiUrl");
     }
     
-    [HttpPost("cartOperate")]
-    public async Task<IActionResult> CartOperate(string id, bool isRemoved)
+    public async Task<IActionResult> AddToCart(string id)
     {            
         using (HttpClient httpClient = new())
         {
-            string uri = $"{_url}api/cart/cartOperate?id={id}&isRemoved={isRemoved}";
-            
-            SetDefaultHeaders(httpClient);
-            var httpResponse = await httpClient.PostAsync(uri, null);
+            string uri = $"{_url}api/cart/addToCart?id={id}&customerId={Request.Cookies["cid"]}";
 
-            var psid = httpResponse.Headers.FirstOrDefault(u => u.Key == "psid").Value?.FirstOrDefault();
-            var count = httpResponse.Headers.FirstOrDefault(u => u.Key == "count").Value?.FirstOrDefault();
-            Response.Cookies.Append("psid", psid == null ? "" : psid);
-            Response.Cookies.Append("count", count == null ? "" : count);
+            httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {Request.Cookies["access_token"]}");
+            await httpClient.PostAsync(uri, null);
 
-            ViewData["CartLenght"] = count;
+            return Redirect("~/");
+        }
+    }
+    
+    public async Task<IActionResult> RemoveFromCart(string id)
+    {            
+        using (HttpClient httpClient = new())
+        {
+            string uri = $"{_url}api/cart/removeFromCart?id={id}&customerId={Request.Cookies["cid"]}";
 
-            return Ok();
+            httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {Request.Cookies["access_token"]}");
+            await httpClient.PostAsync(uri, null);
+
+            return Redirect("~/cart");
         }
     }
     
     [HttpGet("cart")]
-    public async Task<IActionResult> GetFromCookies()
+    public async Task<IActionResult> GetCart()
     {
         using (HttpClient httpClient = new())
         {
-            string uri = $"{_url}api/cart/getFromCookie";
+            string uri = $"{_url}api/cart/getCart?customerId={Request.Cookies["cid"]}";
 
-            SetDefaultHeaders(httpClient);
+            httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {Request.Cookies["access_token"]}");
+
             var httpResponse = await httpClient.GetStringAsync(uri);
 
-            var order = JsonSerializer.Deserialize<OrderDto>(httpResponse,
+            var cart = JsonSerializer.Deserialize<Cart>(httpResponse,
                 new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
-
-            return View(order);
+            
+            return View(cart);
         }
     }
-
-    private HttpClient SetDefaultHeaders(HttpClient httpClient)
-    {
-        httpClient.DefaultRequestHeaders.Add("psid", Request.Cookies["psid"]);
-        httpClient.DefaultRequestHeaders.Add("count", Request.Cookies["count"]);
-        httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {Request.Cookies["access_token"]}");
-
-        return httpClient;
-    } 
 }

@@ -14,6 +14,8 @@ namespace EF_FluentAPI__Front_.Models
 
         [JsonIgnore]
         public Credential? Credential { get; set; }
+        [JsonIgnore]
+        public Cart? Cart { get; set; }
         public ICollection<Order>? Orders { get; set; }
     }
 }

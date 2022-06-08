@@ -39,8 +39,12 @@ namespace EF_FluentAPI__Front_.Controllers
                     return View();
                 }
 
+                var credential = JsonSerializer.Deserialize<Credential>(httpResponse.Content.ReadAsStream(),
+                    new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
+
                 var token = httpResponse.Headers.FirstOrDefault(u => u.Key == "access_token").Value.FirstOrDefault();
-                Response.Cookies.Append("access_token", token!);
+                Response.Cookies.Append("access_token", token!, new CookieOptions { Expires = DateTime.UtcNow.Add(TimeSpan.FromMinutes(10)) });
+                Response.Cookies.Append("cid", credential.CustomerId, new CookieOptions { Expires = DateTime.UtcNow.Add(TimeSpan.FromMinutes(10)) });
 
                 return Redirect("~/");
             }
@@ -68,7 +72,6 @@ namespace EF_FluentAPI__Front_.Controllers
                     ViewData["ErrorMessage"] = new Deserializer().Deserialize(httpResponse.Content.ReadAsStringAsync().Result);
                     return View();
                 }
-
                 var token = httpResponse.Headers.FirstOrDefault(u => u.Key == "access_token").Value.FirstOrDefault();
                 Response.Cookies.Append("access_token", token!);
 

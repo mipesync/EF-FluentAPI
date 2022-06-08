@@ -72,19 +72,19 @@ namespace EF_FluentAPI.Controllers
             return Json(orders);
         }
 
-        [HttpPost("complete")] // GET: /complete?customerId=
-        public async Task<IActionResult> Complete([FromBody] OrderDto orderDto, string customerId)
+        [HttpPost("complete")] // GET: /complete
+        public async Task<IActionResult> Complete([FromBody] Cart cartData)
         {
-            var customer = await _dbContext.Customers.FirstOrDefaultAsync(u => u.Id == customerId);
+            decimal totalPrice = 0;
 
-            var order = new Order { Name = orderDto.Name, Products = orderDto.Products, TotalPrice = orderDto.TotalPrice, IsCompleted = true, Customer = customer! };
+            foreach (var product in cartData.Products!)
+            {
+                totalPrice += product.Price;
+            }
+
+            var order = new Order { Products = cartData.Products!, TotalPrice = totalPrice, IsCompleted = true, Customer = cartData.Customer! };
             
             await _dbContext.Orders.AddAsync(order);
-            _dbContext.Customers.Attach(customer!);
-            foreach (var elem in order.Products)
-            {
-                _dbContext.Products.Attach(elem);
-            }
             await _dbContext.SaveChangesAsync();
 
             return Json(order);

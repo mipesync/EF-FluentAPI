@@ -17,6 +17,23 @@ namespace EF_FluentAPI.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.5");
 
+            modelBuilder.Entity("EF_FluentAPI.Models.Cart", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("CustomerId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId")
+                        .IsUnique();
+
+                    b.ToTable("Cart", (string)null);
+                });
+
             modelBuilder.Entity("EF_FluentAPI.Models.Credential", b =>
                 {
                     b.Property<int>("Id")
@@ -108,6 +125,21 @@ namespace EF_FluentAPI.Migrations
                     b.ToTable("Product", (string)null);
                 });
 
+            modelBuilder.Entity("ProductCart", b =>
+                {
+                    b.Property<int>("ProductId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CartId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("ProductId", "CartId");
+
+                    b.HasIndex("CartId");
+
+                    b.ToTable("ProductCart", (string)null);
+                });
+
             modelBuilder.Entity("ProductOrder", b =>
                 {
                     b.Property<int>("ProductId")
@@ -121,6 +153,15 @@ namespace EF_FluentAPI.Migrations
                     b.HasIndex("OrderId");
 
                     b.ToTable("ProductOrder", (string)null);
+                });
+
+            modelBuilder.Entity("EF_FluentAPI.Models.Cart", b =>
+                {
+                    b.HasOne("EF_FluentAPI.Models.Customer", "Customer")
+                        .WithOne("Cart")
+                        .HasForeignKey("EF_FluentAPI.Models.Cart", "CustomerId");
+
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("EF_FluentAPI.Models.Credential", b =>
@@ -143,6 +184,21 @@ namespace EF_FluentAPI.Migrations
                     b.Navigation("Customer");
                 });
 
+            modelBuilder.Entity("ProductCart", b =>
+                {
+                    b.HasOne("EF_FluentAPI.Models.Cart", null)
+                        .WithMany()
+                        .HasForeignKey("CartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EF_FluentAPI.Models.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("ProductOrder", b =>
                 {
                     b.HasOne("EF_FluentAPI.Models.Order", null)
@@ -160,6 +216,8 @@ namespace EF_FluentAPI.Migrations
 
             modelBuilder.Entity("EF_FluentAPI.Models.Customer", b =>
                 {
+                    b.Navigation("Cart");
+
                     b.Navigation("Credential");
 
                     b.Navigation("Orders");

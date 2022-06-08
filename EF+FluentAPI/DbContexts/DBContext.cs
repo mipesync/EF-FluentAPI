@@ -13,6 +13,7 @@ namespace EF_FluentAPI.DbContexts
         public DbSet<Credential> Credentials { get; set; } = null!;
         public DbSet<Product> Products { get; set; } = null!;
         public DbSet<Order> Orders { get; set; } = null!;
+        public DbSet<Cart> Carts { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -40,6 +41,24 @@ namespace EF_FluentAPI.DbContexts
                     {
                         j.HasKey("ProductId", "OrderId");
                         j.ToTable("ProductOrder");
+                    });
+
+            builder.Entity<Cart>()
+                .ToTable("Cart")
+                .HasOne(u => u.Customer)
+                .WithOne(u => u.Cart);
+
+            builder.Entity<Product>()
+                .HasMany(d => d.Carts)
+                .WithMany(p => p.Products)
+                .UsingEntity<Dictionary<string, object>>(
+                    "ProductCart",
+                    u => u.HasOne<Cart>().WithMany().HasForeignKey("CartId"),
+                    p => p.HasOne<Product>().WithMany().HasForeignKey("ProductId"),
+                    j =>
+                    {
+                        j.HasKey("ProductId", "CartId");
+                        j.ToTable("ProductCart");
                     });
         }            
     }

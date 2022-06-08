@@ -23,11 +23,21 @@ namespace EF_FluentAPI__Front_.Controllers
         {
             using (HttpClient httpClient = new())
             {
-                var httpResponse = await httpClient.GetStringAsync($"{_url}api/product/products_get");
-                var products = JsonSerializer.Deserialize<List<Product>>(httpResponse,
+                var httpResponseProducts = await httpClient.GetStringAsync($"{_url}api/product/products_get");
+                var products = JsonSerializer.Deserialize<List<Product>>(httpResponseProducts,
                     new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
-                
-                ViewData["CartLength"] = Request.Cookies["count"];
+
+                if (Request.Cookies["access_token"] is not null)
+                {
+                    string uri = $"{_url}api/cart/getCart?customerId={Request.Cookies["cid"]}";
+                    httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {Request.Cookies["access_token"]}");
+                    var httpResponseCart = await httpClient.GetStringAsync(uri);
+
+                    var cart = JsonSerializer.Deserialize<Cart>(httpResponseCart,
+                        new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
+                    
+                    ViewData.Add("CartLenght", cart.Products!.Count);                    
+                } else ViewData.Add("CartLenght", 0);  
 
                 return View(products);
             }

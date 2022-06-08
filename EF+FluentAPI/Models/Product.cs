@@ -10,5 +10,7 @@ namespace EF_FluentAPI.Models
 
         [JsonIgnore]
         public ICollection<Order>? Orders { get; set; }
+        [JsonIgnore]
+        public ICollection<Cart>? Carts { get; set; }
     }
 }

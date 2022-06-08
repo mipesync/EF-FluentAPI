@@ -29,10 +29,7 @@
                     @Html.DisplayFor(modelItem => product.Price)
                 </td>
                 <td>
-                    <a asp-controller="Cart" asp-action="CartOperate" asp-route-id="@product.Id" asp-route-isRemoved="false" >Добавить в заказ</a>
-                </td>
-                <td>
-                    <a asp-controller="Cart" asp-action="CartOperate" asp-route-id="@product.Id" asp-route-isRemoved="true" >Удалить из заказа</a>
+                    <a asp-controller="Cart" asp-action="AddToCart" asp-route-id="@product.Id">Добавить в заказ</a>
                 </td>
             </tr>
         </tbody>

@@ -20,50 +20,58 @@ namespace EF_FluentAPI.Controllers
             _dbContext = dbContext;
         }
 
-        [HttpPost("cartOperate")] // POST: /cartOperate?id=&isRemoved=
-        public async Task<IActionResult> CartOperate(string id, bool isRemoved)
+        [HttpGet("getCart")] // GET: /getCart?customerId=
+        public async Task<IActionResult> GetCart(string customerId)
         {
-            var product = await _dbContext.Products.FirstOrDefaultAsync(u => u.Id.ToString() == id);
-            if (product is null) return BadRequest(new { message = "Продукт не найден!" });
+            var cart = await _dbContext.Carts.Include(u => u.Customer).Include(u => u.Products).FirstOrDefaultAsync(u => u.CustomerId == customerId);
+            if (cart is null) return Ok();
 
-            var requestCookies = Request.Headers["psid"].FirstOrDefault();
-            if (requestCookies == null) return Ok();
-
-            var psid = requestCookies!.Split("&").Where(u => u != "").ToList();
-            if (isRemoved) psid.Remove(id);
-            else psid.Add(id);
-            var response = string.Join("&", psid);
-
-            Response.Headers.Append("count", $"{psid.Count}");
-            Response.Headers.Append("psid", response);
-
-            return Ok();
+            return Json(cart);
         }
 
-        [HttpGet("getFromCookie")] // GET: /getFromCookie
-        public async Task<IActionResult> GetFromCookie()
+        [HttpPost("addToCart")] // POST: /addToCart?id=?customerId=
+        public async Task<IActionResult> AddToCart(string id, string customerId)
         {
-            List<Product> products = new List<Product>();
+            List<Product?> products = new List<Product?> { await _dbContext.Products.FirstOrDefaultAsync(u => u.Id.ToString() == id) };
 
-            var requestCookies = Request.Headers["psid"].FirstOrDefault();
-            var psid = requestCookies!.Split("&").Where(u => u != "");
-            decimal totalPrice = 0;
+            var customer = await _dbContext.Customers.FirstOrDefaultAsync(u => u.Id == customerId);
+            if (customer is null) return BadRequest(new { message = "Пользователь не найден!" });
 
-            foreach (var id in psid)
+            var cart = await _dbContext.Carts.Include(u => u.Customer).Include(u => u.Products).FirstOrDefaultAsync(u => u.CustomerId == customerId);
+            if (cart is null)
             {
-                var product = await _dbContext.Products.FirstOrDefaultAsync(u => u.Id.ToString() == id);
-                totalPrice += product!.Price;
-                products.Add(product!);
+                cart = new Cart { Customer = customer, Products = products! };
+                await _dbContext.Carts.AddAsync(cart);
+            }
+            else
+            {
+                products.AddRange(cart.Products!);
+                cart.Products = products!;
+                _dbContext.Carts.Update(cart);
             }
 
-            var order = new OrderDto
-            {
-                Name = new OrderNameGenerator().Generate(),
-                Products = products,
-                TotalPrice = totalPrice
-            };
+            await _dbContext.SaveChangesAsync();
 
-            return Json(order);
+            return Json(cart);
+        }
+
+        [HttpPost("removeFromCart")] // POST: /removeFromCart?id=?customerId=
+        public async Task<IActionResult> RemoveFromCart(string id, string customerId)
+        {
+            List<Product?> products = new List<Product?>();
+
+            var cart = await _dbContext.Carts.Include(u => u.Customer).Include(u => u.Products).FirstOrDefaultAsync(u => u.CustomerId == customerId);
+            if (cart is null) return Ok();
+
+            var product = cart.Products!.FirstOrDefault(u => u.Id.ToString() == id);
+            products.AddRange(cart.Products!);
+            products.Remove(product);
+            cart.Products = products!;
+
+            _dbContext.Carts.Update(cart);
+            await _dbContext.SaveChangesAsync();
+
+            return Json(cart);
         }
     }
 }
