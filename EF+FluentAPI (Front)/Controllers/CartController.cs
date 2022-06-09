@@ -38,7 +38,6 @@ public class CartController : Controller
         using (HttpClient httpClient = new())
         {
             string uri = $"{_url}api/cart/removeFromCart?id={id}&customerId={Request.Cookies["cid"]}";
-
             httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {Request.Cookies["access_token"]}");
             await httpClient.PostAsync(uri, null);
 
@@ -52,9 +51,7 @@ public class CartController : Controller
         using (HttpClient httpClient = new())
         {
             string uri = $"{_url}api/cart/getCart?customerId={Request.Cookies["cid"]}";
-
             httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {Request.Cookies["access_token"]}");
-
             var httpResponse = await httpClient.GetStringAsync(uri);
 
             var cart = JsonSerializer.Deserialize<Cart>(httpResponse,

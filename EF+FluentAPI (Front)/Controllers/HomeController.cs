@@ -10,12 +10,10 @@ namespace EF_FluentAPI__Front_.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
         private readonly string _url;
 
-        public HomeController(ILogger<HomeController> logger, IConfiguration configuration)
+        public HomeController(IConfiguration configuration)
         {
-            _logger = logger;
             _url = configuration.GetValue<string>("ApiConnectionString:ApiUrl");
         }
 
@@ -23,21 +21,24 @@ namespace EF_FluentAPI__Front_.Controllers
         {
             using (HttpClient httpClient = new())
             {
-                var httpResponseProducts = await httpClient.GetStringAsync($"{_url}api/product/products_get");
-                var products = JsonSerializer.Deserialize<List<Product>>(httpResponseProducts,
+                var uri = $"{_url}api/product/products_get";
+                var httpResponse = await httpClient.GetStringAsync(uri);
+                var products = JsonSerializer.Deserialize<List<Product>>(httpResponse,
                     new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
 
                 if (Request.Cookies["access_token"] is not null)
                 {
-                    string uri = $"{_url}api/cart/getCart?customerId={Request.Cookies["cid"]}";
+                    uri = $"{_url}api/cart/getCart?customerId={Request.Cookies["cid"]}";
                     httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {Request.Cookies["access_token"]}");
-                    var httpResponseCart = await httpClient.GetStringAsync(uri);
-
-                    var cart = JsonSerializer.Deserialize<Cart>(httpResponseCart,
-                        new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
-                    
-                    ViewData.Add("CartLenght", cart.Products!.Count);                    
-                } else ViewData.Add("CartLenght", 0);  
+                    httpResponse = await httpClient.GetStringAsync(uri);
+                    try
+                    {
+                        var cart = JsonSerializer.Deserialize<Cart>(httpResponse,
+                            new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
+                        ViewData.Add("CartLenght", cart.Products!.Count);  
+                    }
+                    catch { /* ignored */ }
+                } else ViewData.Add("CartLenght", 0);
 
                 return View(products);
             }

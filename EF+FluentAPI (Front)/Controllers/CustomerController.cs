@@ -3,6 +3,7 @@ using EF_FluentAPI__Front_.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EF_FluentAPI__Front_.Controllers
 {
@@ -27,8 +28,7 @@ namespace EF_FluentAPI__Front_.Controllers
             using (HttpClient httpClient = new())
             {
                 string uri = $"{_url}api/customer/create",
-                    requestBody = JsonSerializer.Serialize(new { customer = customerData, username = HttpContext.Session.GetString("uname") });
-
+                    requestBody = JsonSerializer.Serialize(new { customer = customerData });
                 var httpResponse = await httpClient.PostAsync(uri,
                     new StringContent(requestBody, Encoding.UTF8, "application/json"));
 
@@ -39,6 +39,23 @@ namespace EF_FluentAPI__Front_.Controllers
                 }
 
                 return Redirect("~/login");
+            }
+        }
+
+        [Authorize]
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetProfile()
+        {
+            using (HttpClient httpClient = new())
+            {
+                string uri = $"{_url}api/customer/getById?id={Request.Cookies["cid"]}";
+                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {Request.Cookies["access_token"]}");
+                var httpResponse = await httpClient.GetStringAsync(uri);
+                
+                var customer = JsonSerializer.Deserialize<Customer>(httpResponse,
+                    new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
+
+                return View(customer);
             }
         }
     }

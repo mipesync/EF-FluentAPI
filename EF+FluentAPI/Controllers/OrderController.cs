@@ -1,5 +1,4 @@
 ﻿using EF_FluentAPI.DbContexts;
-using EF_FluentAPI.Generators;
 using EF_FluentAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -72,18 +71,18 @@ namespace EF_FluentAPI.Controllers
             return Json(orders);
         }
 
-        [HttpPost("complete")] // GET: /complete
-        public async Task<IActionResult> Complete([FromBody] Cart cartData)
+        [HttpPost("placeAnOrder")] // Post: /placeAnOrder?customerId=
+        public async Task<IActionResult> PlaceAnOrder([FromBody] OrderDto orderDto, string customerId)
         {
-            decimal totalPrice = 0;
-
-            foreach (var product in cartData.Products!)
-            {
-                totalPrice += product.Price;
-            }
-
-            var order = new Order { Products = cartData.Products!, TotalPrice = totalPrice, IsCompleted = true, Customer = cartData.Customer! };
+            var customer = await _dbContext.Customers.Include(u => u.Cart).FirstOrDefaultAsync(u => u.Id == customerId);
+            var order = new Order { Customer = customer!, Name = orderDto.Name!, Products = orderDto.Products!, 
+                IsCompleted = orderDto.IsCompleted, OrderDate = orderDto.OrderDate, TotalPrice = orderDto.TotalPrice};
             
+            _dbContext.Carts.Remove(customer!.Cart!);
+            foreach (var product in orderDto.Products)
+            {
+                _dbContext.Products.Attach(product);
+            }
             await _dbContext.Orders.AddAsync(order);
             await _dbContext.SaveChangesAsync();
 

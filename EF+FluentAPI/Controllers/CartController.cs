@@ -1,5 +1,4 @@
 ﻿using EF_FluentAPI.DbContexts;
-using EF_FluentAPI.Generators;
 using EF_FluentAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

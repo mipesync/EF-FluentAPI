@@ -18,15 +18,15 @@ namespace EF_FluentAPI.Controllers
             _dbContext = dbContext;
         }
 
-        [HttpGet("get")]
-        public IActionResult Get()
+        [HttpGet("getAll")]
+        public IActionResult GetAll()
         {
             var customer = _dbContext.Customers.Include(u => u.Orders);
             return Json(customer);
         }
 
-        [HttpGet("get/{id}")]
-        public async Task<IActionResult> Get(string id)
+        [HttpGet("getById")]
+        public async Task<IActionResult> GetById(string id)
         {
             var customer = await _dbContext.Customers.Include(u => u.Orders).FirstOrDefaultAsync(u => u.Id == id);
             return Json(customer);

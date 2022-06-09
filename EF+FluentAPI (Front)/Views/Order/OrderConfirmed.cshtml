@@ -1,0 +1,36 @@
+﻿@model Order
+
+@{
+    ViewData["Title"] = "Заказ оформлен!";
+}
+
+<h1>Заказ оформлен!</h1>
+<table class="table">
+    <thead>
+    <tr>
+        <th>
+            <a>Номер заказа</a>
+        </th>
+        <th>
+            <a>Дата заказа</a>
+        </th>
+        <th>
+            <a>Итоговая цена</a>
+        </th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => Model.Name)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => Model.OrderDate)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => Model.TotalPrice)
+        </td>
+    </tr>
+    </tbody>
+</table>

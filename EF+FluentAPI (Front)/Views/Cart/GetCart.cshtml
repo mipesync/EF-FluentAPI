@@ -20,7 +20,7 @@
         <th></th>
     </tr>
     </thead>
-    @foreach (var product in Model.Products)
+    @foreach (var product in Model.Products!)
     {
         <tbody>
         <tr>
@@ -31,7 +31,7 @@
                 @Html.DisplayFor(modelItem => product.Price)
             </td>
             <td>
-                 <a asp-action="RemoveFromCart" asp-controller="Cart" asp-route-id=@product.Id>Удалить</a>
+                <a asp-action="RemoveFromCart" asp-controller="Cart" asp-route-id=@product.Id>Удалить</a>
             </td>
         </tr>
         </tbody>
@@ -50,3 +50,8 @@
         </td>
     </tr>
 </table>
+<form asp-controller="Order" asp-action="OrderConfirmed">
+    <div class="form-group">
+        <input type="submit" value="Оформить" class="btn btn-primary" />
+    </div>
+</form>

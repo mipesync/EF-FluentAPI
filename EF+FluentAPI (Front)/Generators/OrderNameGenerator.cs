@@ -1,6 +1,4 @@
-﻿using EF_FluentAPI.Models;
-
-namespace EF_FluentAPI.Generators
+﻿namespace EF_FluentAPI__Front_.Generators
 {
     public class OrderNameGenerator
     {
