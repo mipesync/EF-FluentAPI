@@ -1,4 +1,4 @@
-﻿namespace EF_FluentAPI.Models;
+﻿namespace EF_FluentAPI__Front_.Models;
 
 public class OrderDto
 {

@@ -15,7 +15,8 @@ public class OrderController : Controller
         _url = configuration.GetValue<string>("ApiConnectionString:ApiUrl");
     }
     
-    public async Task<IActionResult> OrderConfirmed()
+    [HttpPost("confirmed")]
+    public async Task<IActionResult> Confirmed()
     {
         using (HttpClient httpClient = new())
         {
@@ -31,13 +32,29 @@ public class OrderController : Controller
             {
                 totalPrice += product.Price;
             }
-            var order = new Order { Customer = cart.Customer!, Products = cart.Products!, IsCompleted = true, TotalPrice = totalPrice};
+            var orderDto = new OrderDto { Products = cart.Products!, TotalPrice = totalPrice};
 
             uri = $"{_url}api/order/placeAnOrder?customerId={Request.Cookies["cid"]}";
-            var requestBody = JsonSerializer.Serialize(order);
+            var requestBody = JsonSerializer.Serialize(orderDto);
             await httpClient.PostAsync(uri,
                 new StringContent(requestBody, Encoding.UTF8, "application/json"));
 
+            return View();
+        }
+    }
+    
+    [HttpGet("details")]
+    public async Task<IActionResult> Details(string name)
+    {
+        using (HttpClient httpClient = new())
+        {
+            string uri = $"{_url}api/order/getByName?name={name}";
+            httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {Request.Cookies["access_token"]}");
+            var httpResponse = await httpClient.GetStringAsync(uri);
+
+            var order = JsonSerializer.Deserialize<Order>(httpResponse,
+                new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            
             return View(order);
         }
     }

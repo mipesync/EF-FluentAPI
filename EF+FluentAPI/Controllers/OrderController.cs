@@ -1,10 +1,9 @@
 ﻿using EF_FluentAPI.DbContexts;
+using EF_FluentAPI.Generators;
 using EF_FluentAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace EF_FluentAPI.Controllers
 {
@@ -56,9 +55,9 @@ namespace EF_FluentAPI.Controllers
 
         [AllowAnonymous]
         [HttpGet("getByName")] // GET: /getByName?name=
-        public IActionResult GetOrdersByNumber(string name)
+        public async Task<IActionResult> GetOrdersByNumber(string name)
         {
-            var orders = _dbContext.Orders.Include(u => u.Products).Include(u => u.Customer).Where(u => u.Name == name).ToList();
+            var orders = await _dbContext.Orders.Include(u => u.Products).Include(u => u.Customer).FirstOrDefaultAsync(u => u.Name == name);
 
             return Json(orders);
         }
@@ -75,15 +74,18 @@ namespace EF_FluentAPI.Controllers
         public async Task<IActionResult> PlaceAnOrder([FromBody] OrderDto orderDto, string customerId)
         {
             var customer = await _dbContext.Customers.Include(u => u.Cart).FirstOrDefaultAsync(u => u.Id == customerId);
-            var order = new Order { Customer = customer!, Name = orderDto.Name!, Products = orderDto.Products!, 
-                IsCompleted = orderDto.IsCompleted, OrderDate = orderDto.OrderDate, TotalPrice = orderDto.TotalPrice};
+            var order = new Order { Name = new OrderNameGenerator().Generate(_dbContext), Customer = customer!, Products = orderDto.Products, 
+                IsCompleted = true, TotalPrice = orderDto.TotalPrice };
             
-            _dbContext.Carts.Remove(customer!.Cart!);
             foreach (var product in orderDto.Products)
             {
                 _dbContext.Products.Attach(product);
             }
             await _dbContext.Orders.AddAsync(order);
+            
+            var cart = await _dbContext.Carts.Include(u => u.Products).FirstOrDefaultAsync(u => u.Id == customer!.Cart!.Id);
+            cart!.Products!.Clear();
+            
             await _dbContext.SaveChangesAsync();
 
             return Json(order);

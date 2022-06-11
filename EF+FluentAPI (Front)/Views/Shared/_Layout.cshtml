@@ -31,7 +31,10 @@
                 }
                 else
                 {
-                    <a class="navbar-brand" asp-area="" asp-controller="Cart" asp-action="GetCart"><img src="~/shopping-bag.png" width="30"/>@ViewData["CartLenght"]</a>
+                    if (Context.Request.Path == "/")
+                    {
+                        <a class="navbar-brand" asp-area="" asp-controller="Cart" asp-action="GetCart"><img src="~/shopping-bag.png" width="30"/>@ViewData["CartLenght"]</a>
+                    }
                     <a class="navbar-brand" asp-area="" asp-controller="Customer" asp-action="GetProfile">Профиль</a>
                     <a class="navbar-brand" asp-area="" asp-controller="Auth" asp-action="LogOut"><font color="#FF1A18">Выйти</font></a>
                 }

@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using EF_FluentAPI.Generators;
 
 namespace EF_FluentAPI.Models
 {

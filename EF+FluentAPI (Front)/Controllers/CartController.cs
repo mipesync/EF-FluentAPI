@@ -55,7 +55,7 @@ public class CartController : Controller
             var httpResponse = await httpClient.GetStringAsync(uri);
 
             var cart = JsonSerializer.Deserialize<Cart>(httpResponse,
-                new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
+                new JsonSerializerOptions(JsonSerializerDefaults.Web));
             
             return View(cart);
         }

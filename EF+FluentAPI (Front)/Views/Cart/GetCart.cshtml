@@ -1,6 +1,4 @@
-﻿@using EF_FluentAPI__Front_.Controllers
-@using Microsoft.AspNetCore.Mvc.RazorPages
-@model Cart
+﻿@model Cart
 
 @{
     ViewData["Title"] = "Корзина";
@@ -40,18 +38,31 @@
         <td>
             @{
                 decimal totalPrice = 0;
-
-                foreach (var product in Model.Products)
+                
+                if (Model.Products.Count != 0)
                 {
-                    totalPrice += product.Price;
+
+                    foreach (var product in Model.Products)
+                    {
+                        totalPrice += product.Price;
+                    }
+                    <a>Итоговая цена: @totalPrice</a>
                 }
-                <a>Итоговая цена: @totalPrice</a>
+                else
+                {
+                    <a>Корзина пуста :(</a>
+                }
             }
         </td>
     </tr>
 </table>
-<form asp-controller="Order" asp-action="OrderConfirmed">
-    <div class="form-group">
-        <input type="submit" value="Оформить" class="btn btn-primary" />
-    </div>
-</form>
+@{
+    if (Model.Products.Count != 0)
+    {
+        <form asp-controller="Order" asp-action="Confirmed">
+            <div class="form-group">
+                <input type="submit" value="Оформить" class="btn btn-primary"/>
+            </div>
+        </form>
+    }
+}

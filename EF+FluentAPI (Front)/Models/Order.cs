@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-using EF_FluentAPI__Front_.Generators;
 
 namespace EF_FluentAPI__Front_.Models
 {
@@ -7,7 +6,6 @@ namespace EF_FluentAPI__Front_.Models
     {
         public Order()
         {
-            Name = new OrderNameGenerator().Generate();
             OrderDate = DateTime.Now;
         }
 
