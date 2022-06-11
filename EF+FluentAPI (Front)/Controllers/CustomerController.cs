@@ -28,17 +28,19 @@ namespace EF_FluentAPI__Front_.Controllers
             using (HttpClient httpClient = new())
             {
                 string uri = $"{_url}api/customer/create",
-                    requestBody = JsonSerializer.Serialize(new { customer = customerData });
+                    requestBody = JsonSerializer.Serialize(customerData);
+                httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {Request.Cookies["access_token"]}");
                 var httpResponse = await httpClient.PostAsync(uri,
                     new StringContent(requestBody, Encoding.UTF8, "application/json"));
 
-                if (((int)httpResponse.StatusCode) != 200)
+                if ((int)httpResponse.StatusCode != 200)
                 {
                     ViewData["ErrorMessage"] = new Deserializer().Deserialize(httpResponse.Content.ReadAsStringAsync().Result);
                     return View();
                 }
+                Response.Cookies.Append("cid", customerData.Id, new CookieOptions { Expires = DateTime.UtcNow.Add(TimeSpan.FromMinutes(10)) });
 
-                return Redirect("~/login");
+                return Redirect("~/");
             }
         }
 

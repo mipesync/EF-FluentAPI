@@ -52,6 +52,12 @@ app.Use(async (context, next) =>
     if (access_token is not null)
     {
         context.Request.Headers.Add("Authorization", "Bearer " + access_token);
+        
+        if (!context.Request.Cookies.ContainsKey("cid") && context.Request.Path != "/create")
+        {
+            context.Response.Redirect("/create");
+            return;
+        }
     }
     await next();
 });

@@ -73,7 +73,7 @@ namespace EF_FluentAPI__Front_.Controllers
                     return View();
                 }
                 var token = httpResponse.Headers.FirstOrDefault(u => u.Key == "access_token").Value.FirstOrDefault();
-                Response.Cookies.Append("access_token", token!);
+                Response.Cookies.Append("access_token", token!, new CookieOptions { Expires = DateTime.UtcNow.Add(TimeSpan.FromMinutes(10)) });
 
                 return Redirect($"~/create");
             }
@@ -89,6 +89,7 @@ namespace EF_FluentAPI__Front_.Controllers
         public ActionResult LogOutConfirmed()
         {
             Response.Cookies.Delete("access_token");
+            Response.Cookies.Delete("cid");
             return Redirect("~/login");
         }
     }
