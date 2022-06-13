@@ -35,7 +35,8 @@ namespace EF_FluentAPI__Front_.Controllers
                     {
                         var cart = JsonSerializer.Deserialize<Cart>(httpResponse,
                             new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
-                        ViewData["CartLenght"] = cart.Products!.Count;  
+
+                        ViewData["CartLenght"] = cart.Count;  
                     }
                     catch { /* ignored */ }
                 } else ViewData["CartLenght"] = 0;

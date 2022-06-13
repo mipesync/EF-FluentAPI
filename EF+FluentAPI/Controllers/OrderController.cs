@@ -1,6 +1,7 @@
 ﻿using EF_FluentAPI.DbContexts;
 using EF_FluentAPI.Generators;
 using EF_FluentAPI.Models;
+using EF_FluentAPI.Models.Intermediate_Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -74,7 +75,7 @@ namespace EF_FluentAPI.Controllers
         public async Task<IActionResult> PlaceAnOrder([FromBody] OrderDto orderDto, string customerId)
         {
             var customer = await _dbContext.Customers.Include(u => u.Cart).FirstOrDefaultAsync(u => u.Id == customerId);
-            var order = new Order { Name = new OrderNameGenerator().Generate(_dbContext), Customer = customer!, Products = orderDto.Products, 
+            var order = new Order { Name = new OrderNameGenerator().Generate(_dbContext), Customer = customer!, 
                 IsCompleted = true, TotalPrice = orderDto.TotalPrice };
             
             foreach (var product in orderDto.Products)
@@ -82,9 +83,19 @@ namespace EF_FluentAPI.Controllers
                 _dbContext.Products.Attach(product);
             }
             await _dbContext.Orders.AddAsync(order);
+            foreach (var product in orderDto.Products)
+            {
+                for (int i = 0; i < product.ProductCarts!.Count; i++)
+                {
+                    await _dbContext.ProductOrders.AddAsync(new ProductOrder { Order = order, Product = product });
+                }
+            }
             
             var cart = await _dbContext.Carts.Include(u => u.Products).FirstOrDefaultAsync(u => u.Id == customer!.Cart!.Id);
             cart!.Products!.Clear();
+            cart.Count = 0;
+            cart.TotalPrice = 0;
+            _dbContext.Carts.Update(cart);
             
             await _dbContext.SaveChangesAsync();
 

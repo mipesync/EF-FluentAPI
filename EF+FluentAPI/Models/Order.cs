@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using EF_FluentAPI.Generators;
+using EF_FluentAPI.Models.Intermediate_Entities;
 
 namespace EF_FluentAPI.Models
 {
@@ -19,7 +20,8 @@ namespace EF_FluentAPI.Models
 
         [JsonIgnore]
         public Customer Customer { get; set; } = null!;
-        public ICollection<Product> Products { get; set; } = null!;
+        public ICollection<Product>? Products { get; set; }
+        public ICollection<ProductOrder>? ProductOrders { get; set; }
 
     }
 }

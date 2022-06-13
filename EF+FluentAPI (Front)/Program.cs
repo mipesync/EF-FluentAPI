@@ -53,7 +53,7 @@ app.Use(async (context, next) =>
     {
         context.Request.Headers.Add("Authorization", "Bearer " + access_token);
         
-        if (!context.Request.Cookies.ContainsKey("cid") && context.Request.Path != "/create")
+        if (!context.Request.Cookies.ContainsKey("cid") && context.Request.Path != "/create" && context.Request.Path != "/logout")
         {
             context.Response.Redirect("/create");
             return;

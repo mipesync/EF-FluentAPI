@@ -27,16 +27,11 @@ public class OrderController : Controller
             var cart = JsonSerializer.Deserialize<Cart>(httpResponse,
                 new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
 
-            decimal totalPrice = 0;
-            foreach (var product in cart.Products!)
-            {
-                totalPrice += product.Price;
-            }
-            var orderDto = new OrderDto { Products = cart.Products!, TotalPrice = totalPrice};
+            var orderDto = new OrderDto { Products = cart.Products!, TotalPrice = cart.TotalPrice};
 
             uri = $"{_url}api/order/placeAnOrder?customerId={Request.Cookies["cid"]}";
             var requestBody = JsonSerializer.Serialize(orderDto);
-            await httpClient.PostAsync(uri,
+            var asd = await httpClient.PostAsync(uri,
                 new StringContent(requestBody, Encoding.UTF8, "application/json"));
 
             return View();

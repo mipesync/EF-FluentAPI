@@ -9,15 +9,18 @@ namespace EF_FluentAPI.Generators
 
         public string Generate(DBContext dbContext)
         {
-            var orders = dbContext.Orders.Where(u => u.IsCompleted == true);
+            var orders = dbContext.Orders.Where(u => u.IsCompleted == true).ToList();
             
             var random = new Random();
             var name = "";
-            foreach (var order in orders)
+            if (orders is not null)
             {
-                name = random.Next(0, 999999).ToString();
-                if (name != order.Name) return name;
-            }
+                foreach (var order in orders)
+                {
+                    name = random.Next(0, 999999).ToString();
+                    if (name != order.Name) return name;
+                }
+            } else return name = random.Next(0, 999999).ToString();
 
             throw new Exception("Все номера заняты!");
         }

@@ -3,6 +3,7 @@ using System;
 using EF_FluentAPI.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EF_FluentAPI.Migrations
 {
     [DbContext(typeof(DBContext))]
-    partial class DBContextModelSnapshot : ModelSnapshot
+    [Migration("20220613210816_CartUpdate")]
+    partial class CartUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.5");
@@ -101,28 +103,7 @@ namespace EF_FluentAPI.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductCart", (string)null);
-                });
-
-            modelBuilder.Entity("EF_FluentAPI.Models.Intermediate_Entities.ProductOrder", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("ProductOrder", (string)null);
+                    b.ToTable("ProsuctCart", (string)null);
                 });
 
             modelBuilder.Entity("EF_FluentAPI.Models.Order", b =>
@@ -170,7 +151,22 @@ namespace EF_FluentAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Products");
+                    b.ToTable("Product", (string)null);
+                });
+
+            modelBuilder.Entity("ProductOrder", b =>
+                {
+                    b.Property<int>("ProductId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("ProductId", "OrderId");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("ProductOrder", (string)null);
                 });
 
             modelBuilder.Entity("EF_FluentAPI.Models.Cart", b =>
@@ -210,25 +206,6 @@ namespace EF_FluentAPI.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("EF_FluentAPI.Models.Intermediate_Entities.ProductOrder", b =>
-                {
-                    b.HasOne("EF_FluentAPI.Models.Order", "Order")
-                        .WithMany("ProductOrders")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EF_FluentAPI.Models.Product", "Product")
-                        .WithMany("ProductOrders")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Order");
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("EF_FluentAPI.Models.Order", b =>
                 {
                     b.HasOne("EF_FluentAPI.Models.Customer", "Customer")
@@ -238,6 +215,21 @@ namespace EF_FluentAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("ProductOrder", b =>
+                {
+                    b.HasOne("EF_FluentAPI.Models.Order", null)
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EF_FluentAPI.Models.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("EF_FluentAPI.Models.Cart", b =>
@@ -254,16 +246,9 @@ namespace EF_FluentAPI.Migrations
                     b.Navigation("Orders");
                 });
 
-            modelBuilder.Entity("EF_FluentAPI.Models.Order", b =>
-                {
-                    b.Navigation("ProductOrders");
-                });
-
             modelBuilder.Entity("EF_FluentAPI.Models.Product", b =>
                 {
                     b.Navigation("ProductCarts");
-
-                    b.Navigation("ProductOrders");
                 });
 #pragma warning restore 612, 618
         }

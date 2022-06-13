@@ -15,6 +15,9 @@
         <th>
             <a>Цена</a>
         </th>
+        <th>
+            <a>Количество</a>
+        </th>
         <th></th>
     </tr>
     </thead>
@@ -26,7 +29,16 @@
                 @Html.DisplayFor(modelItem => product.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => product.Price)
+                @{
+                    var price = product.Price * product.ProductOrders!.Count;
+                    @Html.DisplayFor(modelItem => price)
+                }
+            </td>
+                <td>
+                    @Html.DisplayFor(modelItem => product.ProductOrders!.Count)
+                </td>
+            <td>
+                <a asp-action="RemoveFromCart" asp-controller="Cart" asp-route-id=@product.Id>Удалить</a>
             </td>
         </tr>
         </tbody>

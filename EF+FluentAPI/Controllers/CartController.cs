@@ -1,9 +1,11 @@
-﻿using EF_FluentAPI.DbContexts;
+﻿using System.Globalization;
+using EF_FluentAPI.DbContexts;
 using EF_FluentAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
+using EF_FluentAPI.Models.Intermediate_Entities;
 
 namespace EF_FluentAPI.Controllers
 {
@@ -40,15 +42,19 @@ namespace EF_FluentAPI.Controllers
             if (cart is null)
             {
                 cart = new Cart { Customer = customer, Products = products! };
+
+                cart.Count++;
+                cart.TotalPrice += products[0]!.Price;
                 await _dbContext.Carts.AddAsync(cart);
             }
             else
             {
-                products.AddRange(cart.Products!);
-                cart.Products = products!;
-                _dbContext.Carts.Update(cart);
+                _dbContext.ProductCarts.Add(new ProductCart { Cart = cart, Product = products[0]});
+                cart.Count++;
+                cart.TotalPrice += products[0]!.Price;
             }
 
+            _dbContext.Carts.Update(cart);
             await _dbContext.SaveChangesAsync();
 
             return Json(cart);
@@ -57,15 +63,13 @@ namespace EF_FluentAPI.Controllers
         [HttpPost("removeFromCart")] // POST: /removeFromCart?id=?customerId=
         public async Task<IActionResult> RemoveFromCart(string id, string customerId)
         {
-            List<Product?> products = new List<Product?>();
-
             var cart = await _dbContext.Carts.Include(u => u.Customer).Include(u => u.Products).FirstOrDefaultAsync(u => u.CustomerId == customerId);
             if (cart is null) return Ok();
 
             var product = cart.Products!.FirstOrDefault(u => u.Id.ToString() == id);
-            products.AddRange(cart.Products!);
-            products.Remove(product);
-            cart.Products = products!;
+            cart.Products!.Remove(product!);
+            cart.Count--;
+            cart.TotalPrice -= product!.Price;
 
             _dbContext.Carts.Update(cart);
             await _dbContext.SaveChangesAsync();

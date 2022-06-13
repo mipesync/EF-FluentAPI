@@ -20,6 +20,7 @@ public class CartController : Controller
         _url = configuration.GetValue<string>("ApiConnectionString:ApiUrl");
     }
     
+    [HttpGet("add")]
     public async Task<IActionResult> AddToCart(string id)
     {            
         using (HttpClient httpClient = new())
@@ -33,6 +34,7 @@ public class CartController : Controller
         }
     }
     
+    [HttpGet("remove")]
     public async Task<IActionResult> RemoveFromCart(string id)
     {            
         using (HttpClient httpClient = new())

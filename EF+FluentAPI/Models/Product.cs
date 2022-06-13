@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using EF_FluentAPI.Models.Intermediate_Entities;
+using System.Text.Json.Serialization;
 
 namespace EF_FluentAPI.Models
 {
@@ -12,5 +13,7 @@ namespace EF_FluentAPI.Models
         public ICollection<Order>? Orders { get; set; }
         [JsonIgnore]
         public ICollection<Cart>? Carts { get; set; }
+        public ICollection<ProductCart>? ProductCarts { get; set; }
+        public ICollection<ProductOrder>? ProductOrders { get; set; }
     }
 }
