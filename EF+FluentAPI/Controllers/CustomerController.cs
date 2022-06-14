@@ -18,21 +18,22 @@ namespace EF_FluentAPI.Controllers
             _dbContext = dbContext;
         }
 
-        [HttpGet("getAll")]
+        [HttpGet("getAll")] //GET: /getAll
         public IActionResult GetAll()
         {
             var customer = _dbContext.Customers.Include(u => u.Orders);
             return Json(customer);
         }
-
-        [HttpGet("getById")]
+        
+        [AllowAnonymous]
+        [HttpGet("getById")] //GET: /getById?id=
         public async Task<IActionResult> GetById(string id)
         {
             var customer = await _dbContext.Customers.Include(u => u.Orders).FirstOrDefaultAsync(u => u.Id == id);
             return Json(customer);
         }
 
-        [HttpPost("create")]
+        [HttpPost("create")] //POST: /create
         public async Task<IActionResult> Create([FromBody] Customer customer)
         {
             if (!ModelState.IsValid) return BadRequest(new { message = "Некорректные данные!" });
@@ -49,7 +50,7 @@ namespace EF_FluentAPI.Controllers
             return Json(customer);
         }
 
-        [HttpPost("edit/{id}")]
+        [HttpPost("edit/{id}")] //GET: /edit/id
         public async Task<IActionResult> Edit(string id, [FromBody] Customer customerData)
         {
             if (!ModelState.IsValid) return BadRequest(new { message = "Некорректные данные!" });

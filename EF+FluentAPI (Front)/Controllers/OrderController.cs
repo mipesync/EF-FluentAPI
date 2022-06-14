@@ -99,4 +99,36 @@ public class OrderController : Controller
             return View("~/Views/Order/FindOrder.cshtml");
         }
     }
+    
+    [HttpGet("sort")]
+    public IActionResult Sort(int id)
+    {
+        var customer = GetOrders().Result;
+        var orders = customer.Orders!.ToList();
+        switch (id)
+        {
+            case 1: orders.Sort((a, b) => a.OrderDate.CompareTo(b.OrderDate));
+                break;
+            case 2: orders.Sort((a, b) => b.OrderDate.CompareTo(a.OrderDate));
+                break;
+            case 3: orders.Sort((a, b) => a.TotalPrice.CompareTo(b.TotalPrice));
+                break;
+            case 4: orders.Sort((a, b) => b.TotalPrice.CompareTo(a.TotalPrice));
+                break;
+        }
+        customer.Orders = orders;
+        return View("~/Views/Customer/GetProfile.cshtml", customer);
+    }
+    
+    public async Task<Customer> GetOrders()
+    {
+        using (HttpClient httpClient = new())
+        {
+            string uri = $"{_url}api/customer/getById?id={Request.Cookies["cid"]}";
+
+            var httpResponse = await httpClient.GetStringAsync(uri);
+            return JsonSerializer.Deserialize<Customer>(httpResponse,
+                new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
+        }
+    }
 }

@@ -5,6 +5,14 @@
 }
 
 <h1>Здравствуйте, @Model.Name</h1>
+<br/>
+<ul>
+    <a>Сортировать по:</a>
+    <a asp-action="Sort" asp-controller="Order" asp-route-id="1" >Дате ↑</a>
+    <a asp-action="Sort" asp-controller="Order" asp-route-id="2" >Дате ↓</a>
+    <a asp-action="Sort" asp-controller="Order" asp-route-id="3" >Стоимости ↑</a>
+    <a asp-action="Sort" asp-controller="Order" asp-route-id="4" >Стоимости ↓</a>
+</ul>
 
 <table class="table">
     <thead>
