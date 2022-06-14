@@ -1,0 +1,37 @@
+﻿@model ICollection<Order>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>
+            <a>Номер заказа</a>
+        </th>
+        <th>
+            <a>Дата заказа</a>
+        </th>
+        <th>
+            <a>Итоговая цена</a>
+        </th>
+        <th></th>
+    </tr>
+    </thead>
+    @foreach (var order in Model!)
+    {
+        <tbody>
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => order.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => order.OrderDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => order.TotalPrice)
+            </td>
+            <td>
+                 <a asp-action="Details" asp-controller="Order" asp-route-name=@order.Name>Посмотреть</a>
+            </td>
+        </tr>
+        </tbody>
+    }
+</table>

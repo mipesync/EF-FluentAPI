@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace EF_FluentAPI__Front_.Models
 {
@@ -10,6 +11,7 @@ namespace EF_FluentAPI__Front_.Models
         }
         public string Id { get; set; }
         public string Name { get; set; } = null!;
+        [RegularExpression(@"/^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,14}(\s*)?$/")]
         public string Phone { get; set; } = null!;
 
         [JsonIgnore]

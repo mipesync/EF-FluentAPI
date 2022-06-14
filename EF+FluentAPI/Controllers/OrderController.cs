@@ -24,7 +24,7 @@ namespace EF_FluentAPI.Controllers
         public IActionResult GetOrders()
         {
             var orders = _dbContext.Orders.Include(u => u.Products).Include(u => u.Customer).ToList();
-
+            if (orders is null) return NotFound(new {message = "Заказы не найдены"});
             return Json(orders);
         }
 
@@ -32,7 +32,7 @@ namespace EF_FluentAPI.Controllers
         public IActionResult GetOrdersByCustomerId(string customerId)
         {
             var orders = _dbContext.Orders.Include(u => u.Products).Include(u => u.Customer).Where(u => u.CustomerId == customerId).ToList();
-
+            if (orders is null) return NotFound(new {message = "Заказы не найдены"});
             return Json(orders);
         }
         
@@ -40,8 +40,8 @@ namespace EF_FluentAPI.Controllers
         [HttpGet("getByCustomerPhone")] // GET: /getByCustomerPhone?customerPhone=
         public IActionResult GetOrdersByCustomerPhone(string customerPhone)
         {
-            var orders = _dbContext.Orders.Include(u => u.Products).Include(u => u.Customer).Where(u => u.Customer.Phone == customerPhone).ToList();
-
+            var orders = _dbContext.Orders.Include(u => u.Products).Where(u => u.Customer.Phone.Contains(customerPhone.Trim())).ToList();
+            if (orders is null) return NotFound(new {message = "Заказы не найдены"});
             return Json(orders);
         }
 
@@ -50,7 +50,7 @@ namespace EF_FluentAPI.Controllers
         public IActionResult GetOrdersByDate(DateTime date)
         {
             var orders = _dbContext.Orders.Include(u => u.Products).Include(u => u.Customer).Where(u => u.OrderDate.Date == date).ToList();
-
+            if (orders is null) return NotFound(new {message = "Заказы не найдены"});
             return Json(orders);
         }
 
@@ -58,17 +58,17 @@ namespace EF_FluentAPI.Controllers
         [HttpGet("getByName")] // GET: /getByName?name=
         public async Task<IActionResult> GetOrdersByNumber(string name)
         {
-            var orders = await _dbContext.Orders.Include(u => u.Products).Include(u => u.Customer).FirstOrDefaultAsync(u => u.Name == name);
-
-            return Json(orders);
+            var order = await _dbContext.Orders.Include(u => u.Products).Include(u => u.Customer).FirstOrDefaultAsync(u => u.Name == name);
+            if (order is null) return NotFound(new {message = "Заказ не найден"});
+            return Json(order);
         }
 
         [HttpGet("getById")] // GET: /getById?id=
         public async Task<IActionResult> GetOrderById(int id)
         {
-            var orders = await _dbContext.Orders.Include(u => u.Products).Include(u => u.Customer).FirstOrDefaultAsync(u => u.Id == id);
-
-            return Json(orders);
+            var order = await _dbContext.Orders.Include(u => u.Products).Include(u => u.Customer).FirstOrDefaultAsync(u => u.Id == id);
+            if (order is null) return NotFound(new {message = "Заказ не найден"});
+            return Json(order);
         }
 
         [HttpPost("placeAnOrder")] // Post: /placeAnOrder?customerId=
@@ -92,9 +92,11 @@ namespace EF_FluentAPI.Controllers
             }
             
             var cart = await _dbContext.Carts.Include(u => u.Products).FirstOrDefaultAsync(u => u.Id == customer!.Cart!.Id);
-            cart!.Products!.Clear();
-            cart.Count = 0;
+
+            cart!.ProductCarts!.Clear();
+            cart.Products!.Clear();
             cart.TotalPrice = 0;
+            cart.Count = 0;
             _dbContext.Carts.Update(cart);
             
             await _dbContext.SaveChangesAsync();

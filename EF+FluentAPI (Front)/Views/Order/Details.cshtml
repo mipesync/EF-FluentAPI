@@ -34,11 +34,8 @@
                     @Html.DisplayFor(modelItem => price)
                 }
             </td>
-                <td>
-                    @Html.DisplayFor(modelItem => product.ProductOrders!.Count)
-                </td>
             <td>
-                <a asp-action="RemoveFromCart" asp-controller="Cart" asp-route-id=@product.Id>Удалить</a>
+                @Html.DisplayFor(modelItem => product.ProductOrders!.Count)
             </td>
         </tr>
         </tbody>
@@ -53,4 +50,9 @@
     </tr>
 </table>
 
-<a asp-controller="Customer" asp-action="GetProfile">Вернуться к заказам</a>
+@{
+    if (User.Identity!.IsAuthenticated)
+    {
+        <a asp-controller="Customer" asp-action="GetProfile">Вернуться к заказам</a>
+    }
+}

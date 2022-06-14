@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Html
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -21,14 +22,14 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    @*<ul class="navbar-nav flex-grow-1">
+                    <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             @if (Context.Request.Path != "/create")
                             {
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Главная</a>
+                                <a class="navbar-brand" asp-area="" asp-controller="Order" asp-action="FindOrder">Найти заказ</a>
                             }
                         </li>
-                    </ul>*@
+                    </ul>
                 </div>
                 @if (!User.Identity!.IsAuthenticated)
                 {

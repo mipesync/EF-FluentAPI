@@ -44,7 +44,8 @@ namespace EF_FluentAPI__Front_.Controllers
 
                 var token = httpResponse.Headers.FirstOrDefault(u => u.Key == "access_token").Value.FirstOrDefault();
                 Response.Cookies.Append("access_token", token!, new CookieOptions { Expires = DateTime.UtcNow.Add(TimeSpan.FromMinutes(10)) });
-                Response.Cookies.Append("cid", credential.CustomerId!, new CookieOptions { Expires = DateTime.UtcNow.Add(TimeSpan.FromMinutes(10)) });
+                if(credential.CustomerId is not null)
+                    Response.Cookies.Append("cid", credential.CustomerId!, new CookieOptions { Expires = DateTime.UtcNow.Add(TimeSpan.FromMinutes(10)) });
 
                 return Redirect("~/");
             }
