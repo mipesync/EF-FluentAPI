@@ -1,0 +1,75 @@
+----------------
+Request:
+	User-Agent: 
+	Protocol: HTTP/1.1
+	Cookie: 
+	Method: POST
+	Path: /api/auth/login
+	ContentType: application/json; charset=utf-8
+	Date: 15.06.2022 16:05:25
+----------------
+Response:
+	Cookie: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoibWlwZXN5bmMiLCJleHAiOjE2NTUyOTg5MjUsImlzcyI6ImxvY2FsaG9zdDo3MDg0IiwiYXVkIjoibG9jYWxob3N0OjcxNDQifQ.xFoPZ-ZMFpVAshbZQa0r-mjRTPRCHf4nbYGK9vJD_Y4
+	StatusCode: 200
+	Body: Deserialize error
+	Date: 15.06.2022 16:05:26
+----------------
+Request:
+	User-Agent: 
+	Protocol: HTTP/1.1
+	Cookie: 
+	Method: POST
+	Path: /api/cart/addToCart
+	ContentType: 
+	Date: 15.06.2022 16:05:58
+----------------
+Response:
+	Cookie: 
+	StatusCode: 200
+	Body: Deserialize error
+	Date: 15.06.2022 16:05:58
+----------------
+Request:
+	User-Agent: 
+	Protocol: HTTP/1.1
+	Cookie: 
+	Method: POST
+	Path: /api/cart/addToCart
+	ContentType: 
+	Date: 15.06.2022 16:06:01
+----------------
+Response:
+	Cookie: 
+	StatusCode: 200
+	Body: Deserialize error
+	Date: 15.06.2022 16:06:01
+----------------
+Request:
+	User-Agent: 
+	Protocol: HTTP/1.1
+	Cookie: 
+	Method: POST
+	Path: /api/cart/removeFromCart
+	ContentType: 
+	Date: 15.06.2022 16:06:04
+----------------
+Response:
+	Cookie: 
+	StatusCode: 200
+	Body: Deserialize error
+	Date: 15.06.2022 16:06:04
+----------------
+Request:
+	User-Agent: 
+	Protocol: HTTP/1.1
+	Cookie: 
+	Method: POST
+	Path: /api/cart/removeFromCart
+	ContentType: 
+	Date: 15.06.2022 16:06:05
+----------------
+Response:
+	Cookie: 
+	StatusCode: 200
+	Body: Deserialize error
+	Date: 15.06.2022 16:06:05

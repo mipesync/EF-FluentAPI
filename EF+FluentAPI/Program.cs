@@ -1,5 +1,6 @@
 using EF_FluentAPI;
 using EF_FluentAPI.DbContexts;
+using EF_FluentAPI.Logging;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -24,7 +25,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 builder.Services.AddAuthorization();
-
+builder.Services.AddControllers(options => options.Filters.Add(typeof(Logger)));
+builder.Services.AddTransient<ConsoleLogger>();
+builder.Services.AddTransient<FileLogger>();
+builder.Services.AddTransient<CombinedLogger>();
 
 builder.Services.AddControllersWithViews();
 

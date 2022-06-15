@@ -2,7 +2,7 @@
 
 namespace EF_FluentAPI.Generators
 {
-    public class OrderNameGenerator
+    public class OrderNameGenerator : IGenerator
     {
         public string Generate(DBContext dbContext)
         {
