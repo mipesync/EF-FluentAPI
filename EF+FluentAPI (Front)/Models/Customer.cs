@@ -11,7 +11,8 @@ namespace EF_FluentAPI__Front_.Models
         }
         public string Id { get; set; }
         public string Name { get; set; } = null!;
-        [RegularExpression(@"/^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,14}(\s*)?$/")]
+        [RegularExpression(@"^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,14}(\s*)?$",
+         ErrorMessage = "Неверный формат номера телефона!")]
         public string Phone { get; set; } = null!;
 
         [JsonIgnore]

@@ -71,6 +71,11 @@ public class OrderController : Controller
     [HttpPost("finder")]
     public async Task<IActionResult> Finder([FromForm] string number)
     {
+        if (number is null)
+        {
+            ViewData["ErrorMessage"] = "Это поле не может быть пустым!";
+            return View("~/Views/Order/FindOrder.cshtml");
+        }
         if (Regex.IsMatch(number, @"^\d{6}$"))
             return RedirectToAction("Details", routeValues: new {name = number});
         else if (Regex.IsMatch(number, @"^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,14}(\s*)?$"))
