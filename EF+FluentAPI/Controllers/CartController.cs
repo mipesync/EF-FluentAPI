@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 using EF_FluentAPI.Models.Intermediate_Entities;
+using EF_FluentAPI.BLL;
 
 namespace EF_FluentAPI.Controllers
 {
@@ -14,18 +15,18 @@ namespace EF_FluentAPI.Controllers
     [Authorize]
     public class CartController : Controller
     {
-        private readonly DBContext _dbContext;
+        private readonly ServiceManager _serviceManager;
 
-        public CartController(DBContext dbContext)
+        public CartController(ServiceManager serviceManager)
         {
-            _dbContext = dbContext;
+            _serviceManager = serviceManager;
         }
 
         [HttpGet("getCart")] // GET: /getCart?customerId=
         public async Task<IActionResult> GetCart(string customerId)
         {
-            var cart = await _dbContext.Carts.Include(u => u.Customer).Include(u => u.Products).FirstOrDefaultAsync(u => u.CustomerId == customerId);
-            if (cart is null) return Ok();
+            var cart = await _serviceManager.CartService.GetCartByCustomerId(customerId);
+            if (cart is null) return NotFound();
 
             return Json(cart);
         }
@@ -33,48 +34,23 @@ namespace EF_FluentAPI.Controllers
         [HttpPost("addToCart")] // POST: /addToCart?id=?customerId=
         public async Task<IActionResult> AddToCart(string id, string customerId)
         {
-            List<Product?> products = new List<Product?> { await _dbContext.Products.FirstOrDefaultAsync(u => u.Id.ToString() == id) };
+            List<Product?> products = new List<Product?> { await _serviceManager.ProductService.GetById(id) };
 
-            var customer = await _dbContext.Customers.FirstOrDefaultAsync(u => u.Id == customerId);
+            var customer = await _serviceManager.CustomerService.GetById(customerId);
             if (customer is null) return BadRequest(new { message = "Пользователь не найден!" });
 
-            var cart = await _dbContext.Carts.Include(u => u.Customer).Include(u => u.Products).FirstOrDefaultAsync(u => u.CustomerId == customerId);
-            if (cart is null)
-            {
-                cart = new Cart { Customer = customer, Products = products! };
+            var cart = await _serviceManager.CartService.GetCartByCustomerId(customerId);
 
-                cart.Count++;
-                cart.TotalPrice += products[0]!.Price;
-                await _dbContext.Carts.AddAsync(cart);
-            }
-            else
-            {
-                _dbContext.ProductCarts.Add(new ProductCart { Cart = cart, Product = products[0]});
-                cart.Count++;
-                cart.TotalPrice += products[0]!.Price;
-            }
-
-            _dbContext.Carts.Update(cart);
-            await _dbContext.SaveChangesAsync();
-
-            return Json(cart);
+            return Json(await _serviceManager.CartService.AddToCart(customer, products!, cart!));
         }
 
         [HttpPost("removeFromCart")] // POST: /removeFromCart?id=?customerId=
         public async Task<IActionResult> RemoveFromCart(string id, string customerId)
         {
-            var cart = await _dbContext.Carts.Include(u => u.Customer).Include(u => u.Products).FirstOrDefaultAsync(u => u.CustomerId == customerId);
+            var cart = await _serviceManager.CartService.GetCartByCustomerId(customerId);
             if (cart is null) return Ok();
 
-            var product = cart.Products!.FirstOrDefault(u => u.Id.ToString() == id);
-            cart.Products!.Remove(product!);
-            cart.Count--;
-            cart.TotalPrice -= product!.Price;
-
-            _dbContext.Carts.Update(cart);
-            await _dbContext.SaveChangesAsync();
-
-            return Json(cart);
+            return Json(await _serviceManager.CartService.RemoveFromCart(cart, id));
         }
     }
 }

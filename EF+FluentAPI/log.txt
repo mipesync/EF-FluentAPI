@@ -73,3 +73,18 @@ Response:
 	StatusCode: 200
 	Body: Deserialize error
 	Date: 15.06.2022 16:06:05
+----------------
+Request:
+	User-Agent: 
+	Protocol: HTTP/1.1
+	Cookie: 
+	Method: POST
+	Path: /api/auth/login
+	ContentType: application/json; charset=utf-8
+	Date: 21.06.2022 21:56:32
+----------------
+Response:
+	Cookie: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoibWlwZXN5bmMiLCJleHAiOjE2NTU4MzgzOTEsImlzcyI6ImxvY2FsaG9zdDo3MDg0IiwiYXVkIjoibG9jYWxob3N0OjcxNDQifQ.1vOvTH5ZVBwGE49ThzFAsDMfZuhl8OYkxnc6WRb3_FM
+	StatusCode: 200
+	Body: 
+	Date: 21.06.2022 21:56:32

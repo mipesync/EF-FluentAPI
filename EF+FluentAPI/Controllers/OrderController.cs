@@ -1,4 +1,5 @@
-﻿using EF_FluentAPI.DbContexts;
+﻿using EF_FluentAPI.BLL;
+using EF_FluentAPI.DbContexts;
 using EF_FluentAPI.Generators;
 using EF_FluentAPI.Models;
 using EF_FluentAPI.Models.Intermediate_Entities;
@@ -13,17 +14,17 @@ namespace EF_FluentAPI.Controllers
     [Authorize]
     public class OrderController : Controller
     {
-        private readonly DBContext _dbContext;
+        private readonly ServiceManager _serviceManager;
 
-        public OrderController(DBContext dbContext)
+        public OrderController(ServiceManager serviceManager)
         {
-            _dbContext = dbContext;
+            _serviceManager = serviceManager;
         }
 
         [HttpGet("get")] // GET: /get
-        public IActionResult GetOrders()
+        public IActionResult GetAll()
         {
-            var orders = _dbContext.Orders.Include(u => u.Products).Include(u => u.Customer).ToList();
+            var orders = _serviceManager.OrderService.GetAll();
             if (orders is null) return NotFound(new {message = "Заказы не найдены"});
             return Json(orders);
         }
@@ -31,7 +32,7 @@ namespace EF_FluentAPI.Controllers
         [HttpGet("getByCustomerId")] // GET: /getByCustomerId?customerId=
         public IActionResult GetOrdersByCustomerId(string customerId)
         {
-            var orders = _dbContext.Orders.Include(u => u.Products).Include(u => u.Customer).Where(u => u.CustomerId == customerId).ToList();
+            var orders = _serviceManager.OrderService.GetOrdersByCustomerId(customerId);
             if (orders is null) return NotFound(new {message = "Заказы не найдены"});
             return Json(orders);
         }
@@ -40,7 +41,7 @@ namespace EF_FluentAPI.Controllers
         [HttpGet("getByCustomerPhone")] // GET: /getByCustomerPhone?customerPhone=
         public IActionResult GetOrdersByCustomerPhone(string customerPhone)
         {
-            var orders = _dbContext.Orders.Include(u => u.Products).Where(u => u.Customer.Phone.Contains(customerPhone.Trim())).ToList();
+            var orders = _serviceManager.OrderService.GetOrdersByCustomerPhone(customerPhone);
             if (orders is null) return NotFound(new {message = "Заказы не найдены"});
             return Json(orders);
         }
@@ -49,16 +50,16 @@ namespace EF_FluentAPI.Controllers
         [HttpGet("getByDate")] // GET: /getByDate?date=
         public IActionResult GetOrdersByDate(DateTime date)
         {
-            var orders = _dbContext.Orders.Include(u => u.Products).Include(u => u.Customer).Where(u => u.OrderDate.Date == date).ToList();
+            var orders = _serviceManager.OrderService.GetOrdersByDate(date);
             if (orders is null) return NotFound(new {message = "Заказы не найдены"});
             return Json(orders);
         }
 
         [AllowAnonymous]
         [HttpGet("getByName")] // GET: /getByName?name=
-        public async Task<IActionResult> GetOrdersByNumber(string name)
+        public async Task<IActionResult> GetByName(string name)
         {
-            var order = await _dbContext.Orders.Include(u => u.Products).Include(u => u.Customer).FirstOrDefaultAsync(u => u.Name == name);
+            var order = await _serviceManager.OrderService.GetByName(name);
             if (order is null) return NotFound(new {message = "Заказ не найден"});
             return Json(order);
         }
@@ -66,7 +67,7 @@ namespace EF_FluentAPI.Controllers
         [HttpGet("getById")] // GET: /getById?id=
         public async Task<IActionResult> GetOrderById(int id)
         {
-            var order = await _dbContext.Orders.Include(u => u.Products).Include(u => u.Customer).FirstOrDefaultAsync(u => u.Id == id);
+            var order = await _serviceManager.OrderService.GetById(id);
             if (order is null) return NotFound(new {message = "Заказ не найден"});
             return Json(order);
         }
@@ -74,34 +75,11 @@ namespace EF_FluentAPI.Controllers
         [HttpPost("placeAnOrder")] // Post: /placeAnOrder?customerId=
         public async Task<IActionResult> PlaceAnOrder([FromBody] OrderDto orderDto, string customerId)
         {
-            var customer = await _dbContext.Customers.Include(u => u.Cart).FirstOrDefaultAsync(u => u.Id == customerId);
-            var order = new Order { Name = new OrderNameGenerator().Generate(_dbContext), Customer = customer!, 
-                IsCompleted = true, TotalPrice = orderDto.TotalPrice };
-            
-            foreach (var product in orderDto.Products)
-            {
-                _dbContext.Products.Attach(product);
-            }
-            await _dbContext.Orders.AddAsync(order);
-            foreach (var product in orderDto.Products)
-            {
-                for (int i = 0; i < product.ProductCarts!.Count; i++)
-                {
-                    await _dbContext.ProductOrders.AddAsync(new ProductOrder { Order = order, Product = product });
-                }
-            }
-            
-            var cart = await _dbContext.Carts.Include(u => u.Products).FirstOrDefaultAsync(u => u.Id == customer!.Cart!.Id);
+            var customer = await _serviceManager.CustomerService.GetById(customerId);
 
-            cart!.ProductCarts!.Clear();
-            cart.Products!.Clear();
-            cart.TotalPrice = 0;
-            cart.Count = 0;
-            _dbContext.Carts.Update(cart);
-            
-            await _dbContext.SaveChangesAsync();
+            var cart = await _serviceManager.CartService.GetById(customer!.Cart!.Id.ToString());
 
-            return Json(order);
+            return Json(await _serviceManager.OrderService.PlaceAnOrder(orderDto, customerId, customer, cart!));
         }
     }
 }

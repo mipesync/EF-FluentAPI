@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using EF_FluentAPI__Front_.JsonDeserializer;
 using EF_FluentAPI__Front_.Models;
+using EF_FluentAPI__Front_.Sorter;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EF_FluentAPI__Front_.Controllers;
@@ -109,18 +110,7 @@ public class OrderController : Controller
     public IActionResult Sort(int id)
     {
         var customer = GetOrders().Result;
-        var orders = customer.Orders!.ToList();
-        switch (id)
-        {
-            case 1: orders.Sort((a, b) => a.OrderDate.CompareTo(b.OrderDate));
-                break;
-            case 2: orders.Sort((a, b) => b.OrderDate.CompareTo(a.OrderDate));
-                break;
-            case 3: orders.Sort((a, b) => a.TotalPrice.CompareTo(b.TotalPrice));
-                break;
-            case 4: orders.Sort((a, b) => b.TotalPrice.CompareTo(a.TotalPrice));
-                break;
-        }
+        var orders = SortingFactory.UseSorter().Sort(customer.Orders!.ToList(), id);
         customer.Orders = orders;
         return View("~/Views/Customer/GetProfile.cshtml", customer);
     }

@@ -1,4 +1,5 @@
-﻿using EF_FluentAPI.DbContexts;
+﻿using EF_FluentAPI.BLL;
+using EF_FluentAPI.DbContexts;
 using EF_FluentAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,26 +12,24 @@ namespace EF_FluentAPI.Controllers
     [Authorize]
     public class CustomerController : Controller
     {
-        private readonly DBContext _dbContext;
+        private readonly ServiceManager _serviceManager;
 
-        public CustomerController(DBContext dbContext)
+        public CustomerController(ServiceManager serviceManager)
         {
-            _dbContext = dbContext;
+            _serviceManager = serviceManager;
         }
 
         [HttpGet("getAll")] //GET: /getAll
         public IActionResult GetAll()
         {
-            var customer = _dbContext.Customers.Include(u => u.Orders);
-            return Json(customer);
+            return Json(_serviceManager.CustomerService.GetAll());
         }
         
         [AllowAnonymous]
         [HttpGet("getById")] //GET: /getById?id=
         public async Task<IActionResult> GetById(string id)
         {
-            var customer = await _dbContext.Customers.Include(u => u.Orders).FirstOrDefaultAsync(u => u.Id == id);
-            return Json(customer);
+            return Json(await _serviceManager.CustomerService.GetById(id));
         }
 
         [HttpPost("create")] //POST: /create
@@ -38,16 +37,11 @@ namespace EF_FluentAPI.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(new { message = "Некорректные данные!" });
 
-            var credential = await _dbContext.Credentials.FirstOrDefaultAsync(u => u.Username == User.Identity!.Name);
+            var credential = await _serviceManager.CredentialService.GetByUsername(User.Identity!.Name!);
 
             if (credential is null) return BadRequest();
 
-            customer.Credential = credential;
-
-            await _dbContext.Customers.AddAsync(customer);
-            await _dbContext.SaveChangesAsync();
-
-            return Json(customer);
+            return Json(await _serviceManager.CustomerService.Create(customer, credential));
         }
 
         [HttpPost("edit/{id}")] //GET: /edit/id
@@ -55,17 +49,11 @@ namespace EF_FluentAPI.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(new { message = "Некорректные данные!" });
 
-            var customer = await _dbContext.Customers.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
+            var customer = await _serviceManager.CustomerService.GetById(id);
 
             if (customer is null) return NotFound(new { message = "Пользователь не найден!" });
 
-            customer = customerData;
-            customer.Id = id;
-
-            _dbContext.Update(customer);
-            await _dbContext.SaveChangesAsync();
-
-            return Json(customer);
+            return Json(await _serviceManager.CustomerService.Edit(customerData, customer));
         }
     }
 }

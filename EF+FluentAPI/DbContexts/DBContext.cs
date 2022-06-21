@@ -1,4 +1,5 @@
-﻿using EF_FluentAPI.Models;
+﻿using EF_FluentAPI.DbContexts.Configure;
+using EF_FluentAPI.Models;
 using EF_FluentAPI.Models.Intermediate_Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,59 +21,10 @@ namespace EF_FluentAPI.DbContexts
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<Customer>()
-                .ToTable("Customer")
-                .HasOne(u => u.Credential)
-                .WithOne(u => u.Customer)
-                .HasForeignKey<Credential>(u => u.CustomerId);
-
-            builder.Entity<Order>()
-                .ToTable("Order")
-                .HasOne(d => d.Customer)
-                .WithMany(p => p.Orders)
-                .HasForeignKey(d => d.CustomerId);
-
-            builder.Entity<Product>()
-                .HasMany(d => d.Orders)
-                .WithMany(p => p.Products)
-                .UsingEntity<ProductOrder>(
-                j => j
-                    .HasOne(u => u.Order)
-                    .WithMany(p => p.ProductOrders)
-                    .HasForeignKey(o => o.OrderId),
-                o => o
-                    .HasOne(pt => pt.Product)
-                    .WithMany(p => p.ProductOrders)
-                    .HasForeignKey(pt => pt.ProductId),
-                j =>
-                {
-                    j.HasKey("Id");
-                    j.ToTable("ProductOrder");
-                });
-
-            builder.Entity<Cart>()
-                .ToTable("Cart")
-                .HasOne(u => u.Customer)
-                .WithOne(u => u.Cart);
-
-            builder.Entity<Product>()
-                .HasMany(d => d.Carts)
-                .WithMany(p => p.Products)
-                .UsingEntity<ProductCart>(
-                j => j
-                    .HasOne(u => u.Cart)
-                    .WithMany(p => p.ProductCarts)
-                    .HasForeignKey(o => o.CartId),
-                o => o
-                    .HasOne(pt => pt.Product)
-                    .WithMany(p => p.ProductCarts)
-                    .HasForeignKey(pt => pt.ProductId),
-                j =>
-                {
-                    j.HasKey("Id");
-                    j.ToTable("ProductCart");
-                });
-
+            builder.ApplyConfiguration(new ConfigureCustomers());
+            builder.ApplyConfiguration(new ConfigureOrders());
+            builder.ApplyConfiguration(new ConfigureProducts());
+            builder.ApplyConfiguration(new ConfigureCarts());
         }
     }
 }

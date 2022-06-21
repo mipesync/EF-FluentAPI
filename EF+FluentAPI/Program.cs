@@ -1,4 +1,7 @@
 using EF_FluentAPI;
+using EF_FluentAPI.BLL;
+using EF_FluentAPI.BLL.Implementations;
+using EF_FluentAPI.BLL.Interfaces;
 using EF_FluentAPI.DbContexts;
 using EF_FluentAPI.Logging;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -25,10 +28,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 builder.Services.AddAuthorization();
+
 builder.Services.AddControllers(options => options.Filters.Add(typeof(Logger)));
 builder.Services.AddTransient<ConsoleLogger>();
 builder.Services.AddTransient<FileLogger>();
 builder.Services.AddTransient<CombinedLogger>();
+
+builder.Services.AddTransient<IAuthService, AuthService>();
+builder.Services.AddTransient<ICartService, CartService>();
+builder.Services.AddTransient<ICustomerService, CustomerService>();
+builder.Services.AddTransient<ICredentialService, CredentialService>();
+builder.Services.AddTransient<IProductService, ProductService>();
+builder.Services.AddTransient<IOrderService, OrderService>();
+builder.Services.AddScoped<ServiceManager>();
 
 builder.Services.AddControllersWithViews();
 
