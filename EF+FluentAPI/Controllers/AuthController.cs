@@ -29,8 +29,6 @@ public class AuthController : Controller
 
         if (credential is not null) return BadRequest(new { message = "Пользователь с таким именем уже существует!" });
 
-        credentialData.Passhash = BCrypt.Net.BCrypt.EnhancedHashPassword(credentialData.Passhash);
-
         var token = _serviceManager.AuthService.JwtIssue(credential!);
         Response.Headers.Append("access_token", token);
 
